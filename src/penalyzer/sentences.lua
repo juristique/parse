@@ -16,7 +16,8 @@ return function (data, n)
                          and sentence .. " " .. word
                           or word
                   total [sentence] = current
-                  current = 0
+                  current  = 0
+                  sentence = nil
                 else
                   sentence = sentence
                          and sentence .. " " .. word
