@@ -27,8 +27,8 @@ dependencies = {
 build = {
   type    = "builtin",
   modules = {
-    ["penalyzer.parse"] = "src/penalyzer/parse.lua",
-    ["penalyzer.lines"] = "src/penalyzer/lines.lua",
+    ["penalyzer.parse"     ] = "src/penalyzer/parse.lua",
+    ["penalyzer.duplicates"] = "src/penalyzer/duplicates.lua",
   },
   install = {
     bin = {
