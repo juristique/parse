@@ -1,8 +1,9 @@
 #! /usr/bin/env lua
 
-local Arguments = require "argparse"
-local Parse     = require "penalyzer.parse"
-local Lines     = require "penalyzer.lines"
+local Arguments  = require "argparse"
+local Parse      = require "penalyzer.parse"
+local Duplicates = require "penalyzer.duplicates"
+local Sentences  = require "penalyzer.sentences"
 
 local parser = Arguments () {
   name        = "penalyzer",
@@ -17,17 +18,28 @@ parser:argument "source" {
   description = "directory containing files to parse",
 }
 
-local arguments = parser:parse ()
-local data      = Parse (arguments)
-local lines     = Lines (data)
+local arguments  = parser:parse ()
+if not arguments.lua and not arguments.yaml and not arguments.json then
+  arguments.yaml = true
+end
 
+local data       = Parse (arguments)
+local duplicates = Duplicates (data)
+local sentences  = Sentences  (data, 60)
+
+local dump
 if arguments.lua then
   local Serpent = require "serpent"
-  print (Serpent.dump (lines))
+  dump = Serpent.dump
 elseif arguments.json then
   local Json = require "cjson"
-  print (Json.encode (lines))
+  dump = Json.encode
 elseif arguments.yaml then
   local Yaml = require "lyaml"
-  print (Yaml.dump { lines })
+  dump = function (t)
+    return Yaml.dump { t }
+  end
 end
+
+print (dump (duplicates))
+print (dump (sentences))

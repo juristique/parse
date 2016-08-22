@@ -29,6 +29,7 @@ build = {
   modules = {
     ["penalyzer.parse"     ] = "src/penalyzer/parse.lua",
     ["penalyzer.duplicates"] = "src/penalyzer/duplicates.lua",
+    ["penalyzer.sentences" ] = "src/penalyzer/sentences.lua",
   },
   install = {
     bin = {
