@@ -1,4 +1,5 @@
 local Lustache = require "lustache"
+local Stats    = require "penalyzer.stats"
 
 return function (parser)
 
@@ -36,31 +37,10 @@ return function (parser)
         png = png,
       }))
       os.remove (dot)
-      -- maximum number of references in an article:
-      local max = -math.huge
-      for _, t in pairs (dependencies) do
-        local n = 0
-        for _ in pairs (t) do
-          n = n + 1
-        end
-        max = math.max (max, n)
-      end
-      -- average
-      local count = 0
-      local total = 0
-      for id in pairs (data.articles) do
-        local n = 0
-        for _ in pairs (dependencies [id]) do
-          n = n + 1
-        end
-        count = count + n
-        total = total + 1
-      end
-      local average = count / total
       -- maximum reference depth:
       local depths = {}
       local cycles = {}
-      local function depth (id, seen)
+      local function acyclic_depth (id, seen)
         seen = seen or {}
         if depths [id] then
           return depths [id]
@@ -80,7 +60,7 @@ return function (parser)
         if dependencies [id] then
           seen [#seen+1] = id
           for target in pairs (dependencies [id]) do
-            r = math.max (r, depth (target, seen) + 1)
+            r = math.max (r, acyclic_depth (target, seen) + 1)
           end
           seen [#seen] = nil
         end
@@ -89,13 +69,25 @@ return function (parser)
       end
       local depth_acyclic = 0
       for id in pairs (data.articles) do
-        depth_acyclic = math.max (depth (id), depth_acyclic)
+        depth_acyclic = math.max (acyclic_depth (id), depth_acyclic)
+      end
+      -- compute statistics for breadth:
+      local breadth = {}
+      for _, d in pairs (dependencies) do
+        local n = 0
+        for _ in pairs (d) do
+          n = n + 1
+        end
+        breadth [#breadth+1] = n
+      end
+      local depth = {}
+      for _, d in pairs (depths) do
+        depth [#depth+1] = d
       end
       result.dependencies = {
-        max     = max,
-        average = average,
+        breadth = Stats (breadth),
+        depth   = Stats (depth),
         png     = png,
-        depth   = depth_acyclic,
         cycles  = cycles,
         depths  = options.detailed and depths,
         details = options.detailed and dependencies,

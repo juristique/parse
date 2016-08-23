@@ -27,6 +27,7 @@ dependencies = {
 build = {
   type    = "builtin",
   modules = {
+    ["penalyzer.stats"       ] = "src/penalyzer/stats.lua",
     ["penalyzer.parse"       ] = "src/penalyzer/parse.lua",
     ["penalyzer.dependencies"] = "src/penalyzer/dependencies.lua",
     ["penalyzer.duplicates"  ] = "src/penalyzer/duplicates.lua",

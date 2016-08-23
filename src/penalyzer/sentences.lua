@@ -1,3 +1,5 @@
+local Stats = require "penalyzer.stats"
+
 return function (parser)
 
   local command = parser:command "sentences" {
@@ -53,28 +55,21 @@ return function (parser)
           above_all = above_all + n
         end
       end
-      -- longest sentence:
-      local longest = 0
-      for _, t in pairs (sentences) do
-        longest = math.max (longest, t.count)
-      end
-      -- average:
-      local sum   = 0
-      local total = 0
-      for _, t in pairs (sentences) do
-        local n = 0
-        for _ in pairs (t.articles) do
-          n = n + 1
+      -- compute statistics:
+      local t = {}
+      for _, s in pairs (sentences) do
+        for _ in pairs (s.articles) do
+          t [#t+1] = s.count
         end
-        sum   = sum + n * t.count
-        total = total + n
       end
-      local average = sum / total
+      local stats = Stats (t)
       result.sentences = {
-        average   = average,
+        mean      = stats.mean,
+        deviation = stats.deviation,
+        maximum   = stats.maximum,
+        minimum   = stats.minimum,
         above     = above,
         above_all = above_all,
-        longest   = longest,
         per_count = options.detailed and per_count,
         details   = options.detailed and sentences,
       }
