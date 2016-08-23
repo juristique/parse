@@ -17,16 +17,24 @@ return function (parser)
       for id, article in pairs (data.articles) do
         local count    = 0
         local sentence = nil
-        for word in article.markdown:gmatch "[%S]+" do
-          if word:match "%.$" or word:match "%;$" or word:match "%:$" then
+        local text     = article.markdown
+        text = text:sub (text:find ("----", 1, true) + 4)
+        for word in text:gmatch "[%S]+" do
+          if (word:match "%.$" or word:match "%;$" or word:match "%:$")
+          and not word:match "[A-Z]%."
+          and not word:match "Art%."
+          and not word:match "%d+%-%d+%."
+          and not word:match "bis%." then
             sentence = sentence
                    and sentence .. " " .. word
                     or word
-            sentences [sentence] = sentences [sentence] or {
-              count      = count,
-              articles   = {},
-            }
-            sentences [sentence].articles [id] = true
+            if count > 0 then
+              sentences [sentence] = sentences [sentence] or {
+                count      = count + 1,
+                articles   = {},
+              }
+              sentences [sentence].articles [id] = true
+            end
             count  = 0
             sentence = nil
           else
@@ -65,6 +73,7 @@ return function (parser)
       local stats = Stats (t)
       result.sentences = {
         mean      = stats.mean,
+        median    = stats.median,
         deviation = stats.deviation,
         maximum   = stats.maximum,
         minimum   = stats.minimum,
