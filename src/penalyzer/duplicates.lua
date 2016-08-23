@@ -17,7 +17,7 @@ return function (parser)
       end
       local copied  = 0
       local total   = 0
-      local max     = 0
+      local max     = -math.huge
       for _, t in pairs (lines) do
         local n = 0
         for _ in pairs (t) do
