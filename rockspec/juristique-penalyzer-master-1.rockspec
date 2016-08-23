@@ -18,18 +18,19 @@ dependencies = {
   "argparse",
   "lua-cjson",
   "luafilesystem",
+  "lustache",
   "lyaml",
   "serpent",
-  -- "lustache",
   -- "xml",
 }
 
 build = {
   type    = "builtin",
   modules = {
-    ["penalyzer.parse"     ] = "src/penalyzer/parse.lua",
-    ["penalyzer.duplicates"] = "src/penalyzer/duplicates.lua",
-    ["penalyzer.sentences" ] = "src/penalyzer/sentences.lua",
+    ["penalyzer.parse"       ] = "src/penalyzer/parse.lua",
+    ["penalyzer.dependencies"] = "src/penalyzer/dependencies.lua",
+    ["penalyzer.duplicates"  ] = "src/penalyzer/duplicates.lua",
+    ["penalyzer.sentences"   ] = "src/penalyzer/sentences.lua",
   },
   install = {
     bin = {

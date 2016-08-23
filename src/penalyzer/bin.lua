@@ -15,8 +15,9 @@ parser:mutex (
 parser:flag "--detailed"
 
 local commands = {
-  require "penalyzer.duplicates" (parser),
-  require "penalyzer.sentences"  (parser),
+  require "penalyzer.dependencies" (parser),
+  require "penalyzer.duplicates"   (parser),
+  require "penalyzer.sentences"    (parser),
 }
 
 parser:argument "source" {
