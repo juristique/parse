@@ -1,4 +1,4 @@
-local Lfs      = require "lfs"
+local Lfs = require "lfs"
 -- local Lustache = require "lustache"
 -- local Xml      = require "xml"
 
