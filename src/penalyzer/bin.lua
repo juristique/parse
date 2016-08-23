@@ -2,8 +2,6 @@
 
 local Arguments  = require "argparse"
 local Parse      = require "penalyzer.parse"
-local Duplicates = require "penalyzer.duplicates"
-local Sentences  = require "penalyzer.sentences"
 
 local parser = Arguments () {
   name        = "penalyzer",
@@ -14,6 +12,13 @@ parser:mutex (
   parser:flag "--yaml",
   parser:flag "--json"
 )
+parser:flag "--detailed"
+
+local commands = {
+  require "penalyzer.duplicates" (parser),
+  require "penalyzer.sentences"  (parser),
+}
+
 parser:argument "source" {
   description = "directory containing files to parse",
 }
@@ -22,10 +27,6 @@ local arguments  = parser:parse ()
 if not arguments.lua and not arguments.yaml and not arguments.json then
   arguments.yaml = true
 end
-
-local data       = Parse (arguments)
-local duplicates = Duplicates (data)
-local sentences  = Sentences  (data, 60)
 
 local dump
 if arguments.lua then
@@ -41,5 +42,10 @@ elseif arguments.yaml then
   end
 end
 
-print (dump (duplicates))
-print (dump (sentences))
+local data   = Parse (arguments)
+local result = {}
+for _, f in ipairs (commands) do
+  f (data, result, arguments)
+end
+
+print (dump (result))

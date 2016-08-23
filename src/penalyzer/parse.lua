@@ -2,48 +2,60 @@ local Lfs      = require "lfs"
 -- local Lustache = require "lustache"
 -- local Xml      = require "xml"
 
-local function romantonumber (s)
-  if     s == "Ier"    then return 1
-  elseif s == "II"     then return 2
-  elseif s == "III"    then return 3
-  elseif s == "IV"     then return 4
-  elseif s == "IV bis" then return 4.5
-  elseif s == "V"      then return 5
-  elseif s == "VI"     then return 6
-  elseif s == "VII"    then return 7
-  elseif s == "VIII"   then return 8
-  elseif s == "IX"     then return 9
-  elseif s == "X"      then return 10
-  else assert (false, s)
-  end
-end
-
 return function (configuration)
   assert (configuration.source)
-  local data = {}
-  for livre in Lfs.dir (configuration.source) do
-    local livre_path = configuration.source .. "/" .. livre
-    if  livre:sub (1, 1) ~= "."
+  local data = {
+    livres   = {},
+    articles = {},
+  }
+  for livre_dir in Lfs.dir (configuration.source) do
+    local livre_path = configuration.source .. "/" .. livre_dir
+    if  livre_dir:sub (1, 1) ~= "."
     and Lfs.attributes (livre_path, "mode") == "directory" then
-      for titre in Lfs.dir (livre_path) do
-        local titre_path = livre_path .. "/" .. titre
-        if titre:sub (1, 1) ~= "."
+      local livre_id = livre_dir:match "Livre (.*)"
+      data.livres [livre_id] = data.livres [livre_id] or {
+        id        = livre_id,
+        type      = "livre",
+        titres    = {},
+        chapitres = {},
+      }
+      local livre = data.livres [livre_id]
+      for titre_dir in Lfs.dir (livre_path) do
+        local titre_path = livre_path .. "/" .. titre_dir
+        if titre_dir:sub (1, 1) ~= "."
         and Lfs.attributes (titre_path, "mode") == "directory" then
-          for article in Lfs.dir (titre_path) do
-            local article_path = titre_path .. "/" .. article
-            if  article:sub (1, 1) ~= "."
+          local titre_id    = titre_dir:match "Titre (.*)"
+          local chapitre_id = titre_dir:match "Chapitre (.*)"
+          local titre
+          if titre_id then
+            livre.titres [titre_id] = livre.titres [titre_id] or {
+              id       = titre_id,
+              type     = "titre",
+              articles = {},
+            }
+            titre = livre.titres [titre_id]
+          elseif chapitre_id then
+            livre.chapitres [chapitre_id] = livre.chapitres [chapitre_id] or {
+              id       = chapitre_id,
+              type     = "chapitre",
+              articles = {},
+            }
+            titre = livre.chapitres [chapitre_id]
+          end
+          for article_file in Lfs.dir (titre_path) do
+            local article_path = titre_path .. "/" .. article_file
+            if  article_file:sub (1, 1) ~= "."
             and Lfs.attributes (article_path, "mode") == "file" then
-              local nlivre       = romantonumber (livre:match "Livre (.*)"   )
-              local ntitre       = romantonumber (titre:match "Titre (.*)" or titre:match "Chapitre (.*)")
-              local narticle     = article:match "Article (.*)%.md"
-              local article_file = io.open (article_path, "r")
-              data [nlivre]     = data [nlivre]   or {}
-              data [nlivre].raw = data [nlivre].raw or livre
-              data [nlivre][ntitre]     = data [nlivre][ntitre]     or {}
-              data [nlivre][ntitre].raw = data [nlivre][ntitre].raw or titre -- FIXME: not working with "Livre IVbis"
-              data [nlivre][ntitre][narticle] = {}
-              data [nlivre][ntitre][narticle].markdown = article_file:read "*all"
-              article_file:close ()
+              local article_id = article_file:match "Article (.*)%.md"
+              local file       = io.open (article_path, "r")
+              local article = {
+                id       = article_id,
+                type     = "article",
+                markdown = file:read "*all",
+              }
+              file:close ()
+              titre.articles [article_id] = article
+              data .articles [article_id] = article
               -- local output = os.tmpname () .. ".html"
               -- assert (os.execute (Lustache:render ([[ pandoc "{{{input}}}" -o "{{{output}}}" ]], {
               --   input  = article_path,
