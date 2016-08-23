@@ -37,6 +37,7 @@ return function (parser)
         copied    = copied,
         ratio     = copied / total,
         mean      = stats.mean,
+        median    = stats.median,
         deviation = stats.deviation,
         maximum   = stats.maximum,
         minimum   = stats.minimum,
