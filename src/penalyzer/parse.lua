@@ -13,6 +13,10 @@ return function (configuration)
     if  livre_dir:sub (1, 1) ~= "."
     and Lfs.attributes (livre_path, "mode") == "directory" then
       local livre_id = livre_dir:match "Livre (.*)"
+      if not livre_id then
+        print ("Error:", livre_dir)
+        livre_id = livre_dir
+      end
       data.livres [livre_id] = data.livres [livre_id] or {
         id        = livre_id,
         type      = "livre",
@@ -41,6 +45,8 @@ return function (configuration)
               articles = {},
             }
             titre = livre.chapitres [chapitre_id]
+          else
+            print ("Error:", titre_path)
           end
           for article_file in Lfs.dir (titre_path) do
             local article_path = titre_path .. "/" .. article_file
@@ -54,8 +60,10 @@ return function (configuration)
                 markdown = file:read "*all",
               }
               file:close ()
-              titre.articles [article_id] = article
-              data .articles [article_id] = article
+              if titre then
+                titre.articles [article_id] = article
+              end
+              data.articles [article_id] = article
               -- local output = os.tmpname () .. ".html"
               -- assert (os.execute (Lustache:render ([[ pandoc "{{{input}}}" -o "{{{output}}}" ]], {
               --   input  = article_path,
