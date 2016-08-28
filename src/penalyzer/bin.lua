@@ -17,6 +17,7 @@ parser:flag "--detailed"
 local commands = {
   require "penalyzer.dependencies" (parser),
   require "penalyzer.duplicates"   (parser),
+  require "penalyzer.identifiers"  (parser),
   require "penalyzer.sentences"    (parser),
 }
 

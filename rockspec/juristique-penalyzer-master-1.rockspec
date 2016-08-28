@@ -31,6 +31,7 @@ build = {
     ["penalyzer.parse"       ] = "src/penalyzer/parse.lua",
     ["penalyzer.dependencies"] = "src/penalyzer/dependencies.lua",
     ["penalyzer.duplicates"  ] = "src/penalyzer/duplicates.lua",
+    ["penalyzer.identifiers" ] = "src/penalyzer/identifiers.lua",
     ["penalyzer.sentences"   ] = "src/penalyzer/sentences.lua",
   },
   install = {
